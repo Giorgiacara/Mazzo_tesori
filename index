@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazzo NFC Interattivo</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e74c3c;
+            --bg: #f4f4f4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Pulsante Reset in alto a destra */
+        #reset-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 0.8rem;
+        }
+
+        /* Contenitore Mazzo */
+        #game-container {
+            width: 90%;
+            max-width: 400px;
+            height: 600px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .card-display {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: all 0.5s ease;
+        }
+
+        /* Immagine della carta */
+        .card-img {
+            width: 100%;
+            height: 300px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            background: #eee;
+            border-radius: 10px;
+        }
+
+        .status-msg {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Nascondi elementi */
+        .hidden { display: none !important; }
+
+        /* Overlay di scansione */
+        #scanning-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="reset-btn" onclick="confermaReset()">Resetta Mazzo</button>
+
+    <div id="game-container">
+        <div id="deck-back" class="card-display">
+            <img src="https://via.placeholder.com/300x500/2c3e50/ffffff?text=RETRO+MAZZO" alt="Retro Mazzo" class="card-img">
+            <p>Avvicina il tag NFC per estrarre</p>
+        </div>
+
+        <div id="scanning-overlay" class="hidden">
+            <p class="status-msg">In cerca di tesori...</p>
+        </div>
+
+        <div id="card-front" class="card-display hidden">
+            <h2 id="card-name">Nome Carta</h2>
+            <img id="card-image" src="" alt="Immagine Carta" class="card-img">
+            <p id="card-desc">Descrizione della carta estratta.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- DATABASE CARTE ---
+        const DATABASE_INIZIALE = [
+            { id: 1, nome: "Calice d'Oro", tipo: "Tesori", desc: "Un tesoro antico. Vale 100 monete.", img: "https://via.placeholder.com/300?text=TESORO+1" },
+            { id: 2, nome: "Spada Arrugginita", tipo: "Tesori", desc: "Un'arma base ma utile.", img: "https://via.placeholder.com/300?text=TESORO+2" },
+            { id: 3, nome: "Morso di Serpente", tipo: "Danni", desc: "Perdi 2 punti vita immediatamente.", img: "https://via.placeholder.com/300?text=DANNO+1" },
+            { id: 4, nome: "Crollo della Grotta", tipo: "Danni", desc: "Resta bloccato per un turno.", img: "https://via.placeholder.com/300?text=DANNO+2" }
+        ];
+
+        let mazzoAttivo = [];
+        let isProcessing = false;
+
+        // Inizializzazione
+        function init() {
+            const salvataggio = localStorage.getItem('mazzoNFC');
+            mazzoAttivo = salvataggio ? JSON.parse(salvataggio) : [...DATABASE_INIZIALE];
+            startNFC();
+        }
+
+        // Funzione Estrazione
+        function estrai() {
+            if (isProcessing || mazzoAttivo.length === 0) return;
+            
+            isProcessing = true;
+            document.getElementById('scanning-overlay').classList.remove('hidden');
+
+            // 3 secondi di attesa
+            setTimeout(() => {
+                document.getElementById('scanning-overlay').classList.add('hidden');
+                document.getElementById('deck-back').classList.add('hidden');
+                
+                // Logica estrazione
+                const indice = Math.floor(Math.random() * mazzoAttivo.length);
+                const carta = mazzoAttivo[indice];
+
+                // Visualizzazione
+                document.getElementById('card-name').innerText = carta.nome;
+                document.getElementById('card-image').src = carta.img;
+                document.getElementById('card-desc').innerText = carta.desc;
+                document.getElementById('card-front').classList.remove('hidden');
+
+                // Gestione Categoria
+                if (carta.tipo === "Tesori") {
+                    mazzoAttivo.splice(indice, 1);
+                    localStorage.setItem('mazzoNFC', JSON.stringify(mazzoAttivo));
+                }
+
+                // Timer 20 secondi per tornare al retro
+                setTimeout(() => {
+                    document.getElementById('card-front').classList.add('hidden');
+                    document.getElementById('deck-back').classList.remove('hidden');
+                    isProcessing = false;
+                }, 20000);
+
+            }, 3000);
+        }
+
+        // Reset
+        function confermaReset() {
+            if (confirm("Vuoi davvero ripristinare il mazzo originale?")) {
+                mazzoAttivo = [...DATABASE_INIZIALE];
+                localStorage.setItem('mazzoNFC', JSON.stringify(mazzoAttivo));
+                alert("Mazzo ripristinato!");
+                location.reload();
+            }
+        }
+
+        // Integrazione Web NFC
+        async function startNFC() {
+            if ('NDEFReader' in window) {
+                try {
+                    const ndef = new NDEFReader();
+                    await ndef.scan();
+                    ndef.onreading = () => {
+                        if (!isProcessing) estrai();
+                    };
+                } catch (error) {
+                    console.log("Errore NFC: " + error);
+                }
+            } else {
+                console.log("Web NFC non supportato. Clicca sul mazzo per simulare.");
+                // Simulazione per test su PC (cliccando il mazzo)
+                document.getElementById('deck-back').onclick = estrai;
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
