@@ -103,12 +103,12 @@
 </head>
 <body>
 
-    <button id="reset-btn" onclick="confermaReset()">Resetta Mazzo</button>
+    <button id="reset-btn" onclick="confermaReset()">Ripristina Tesori</button>
 
     <div id="game-container">
         <div id="deck-back" class="card-display">
             <img src="https://hqtoolkit.altervista.org/images/tesori/HQ21/HQ21_back.png" alt="Retro Mazzo" class="card-img">
-            <p>Avvicina il tag NFC per estrarre</p>
+            <p>Avvicinati al forziere per cercare tesori</p>
         </div>
 
         <div id="scanning-overlay" class="hidden">
@@ -173,7 +173,7 @@
     function estrai() {
         if (isProcessing) return;
         if (mazzoAttivo.length === 0) {
-            alert("Mazzo esaurito!");
+            alert("Tesori esauriti!");
             return;
         }
         
@@ -201,13 +201,13 @@
                 document.getElementById('card-front').classList.add('hidden');
                 document.getElementById('deck-back').classList.remove('hidden');
                 isProcessing = false;
-            }, 20000);
+            }, 10000); /*mostra la carta tesoro per 10 secondi*/
 
-        }, 3000);
+        }, 3000);/*mostra ricerca tesoro per 3 secondi*/
     }
 
     function confermaReset() {
-        if (confirm("Vuoi davvero ripristinare il mazzo originale?")) {
+        if (confirm("Vuoi davvero ripristinare tutti i tesori originali?")) {
             mazzoAttivo = [...DATABASE_INIZIALE];
             localStorage.setItem('mazzoNFC', JSON.stringify(mazzoAttivo));
             location.reload();
