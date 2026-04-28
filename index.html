@@ -39,7 +39,9 @@
         #start-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: #1a1a1a;
+            /* Rimuoviamo lo sfondo solido e usiamo un'ombra scura semi-trasparente */
+            /* Questo serve a far leggere bene il testo dorato sopra l'immagine */
+            background: rgba(0, 0, 0, 0.7); 
             z-index: 9999;
             display: flex;
             flex-direction: column;
