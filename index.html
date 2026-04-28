@@ -89,7 +89,6 @@
             padding: 20px;
             box-sizing: border-box;
             color: #2c3e50;
-            /* Protezione anti-flash */
             backface-visibility: hidden;
             -webkit-perspective: 1000;
         }
@@ -172,6 +171,8 @@
 </head>
 <body>
 
+    <audio id="audio-player" preload="auto"></audio>
+
     <div id="custom-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h2>Reset del Mazzo</h2>
@@ -210,30 +211,30 @@
 
     <script>
         const DATABASE_INIZIALE = [
-            {id: 1, nome: "Pozione Risanante", tipo: "Tesori", desc: "In a bundle of rags, you find a small bottle of bluish liquid. You can drink this healing potion at any time, <b>restoring the number of Body Points equal to a roll of one dice</b>. You cannot, however, exceed your starting number of Body Points. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902"},
-            {id: 2, nome: "Pozione Risanante", tipo: "Tesori", desc: "In a bundle of rags, you find a small bottle of bluish liquid. You can drink this healing potion at any time, <b>restoring the number of Body Points equal to a roll of one dice</b>. You cannot, however, exceed your starting number of Body Points. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902"},
-            {id: 3, nome: "Pozione Risanante", tipo: "Tesori", desc: "In a bundle of rags, you find a small bottle of bluish liquid. You can drink this healing potion at any time, <b>restoring the number of Body Points equal to a roll of one dice</b>. You cannot, however, exceed your starting number of Body Points. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902"},
-            {id: 4, nome: "Pozione Eroica", tipo: "Tesori", desc: "You are surprised to find a leather bag hanging on the wall. If you drink its contents before you attack, you can <b>make two attacks instead of one</b>. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/9/92/Potion_heroic.jpg/revision/latest?cb=20090514125219"},
-            {id: 5, nome: "Pozione Rinforzante", tipo: "Tesori", desc: "You find a small purple flask. You can drink this strange smelling liquid at any time, enabling you to <b>roll two extra combat dice the next time you attack</b>. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/a/a8/Potion_strength.jpg/revision/latest?cb=20090514125250"},
-            {id: 6, nome: "Pozione di Difesa", tipo: "Tesori", desc: "Amidst a collection of old bottles, you find a small vial containing clear liquid. You can drink this potion at any time, giving you <b>two extra combat dice next time you defend</b>. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/a/ae/Potion_defense.jpg/revision/latest?cb=20090514123841"},
-            {id: 7, nome: "Gemme!", tipo: "Tesori", desc: "Tucked into the toe of a old boot you find a small gem worth <b>35 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/8/81/Treasure_gem.jpg/revision/latest?cb=20090514125416"},
-            {id: 8, nome: "Gemme!", tipo: "Tesori", desc: "Tucked into the toe of a old boot you find a small gem worth <b>35 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/8/81/Treasure_gem.jpg/revision/latest?cb=20090514125416"},
-            {id: 9, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457"},
-            {id: 10, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457"},
-            {id: 11, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457"},
-            {id: 12, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457"},
-            {id: 13, nome: "Gioielli!", tipo: "Tesori", desc: "You find a small wooden box. It is simple-looking and very old. Within you discover that it is lined with velvet and contains very small jewels worth <b>50 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/1/1d/Treasure_jewel.jpg/revision/latest?cb=20090514125520"},
-            {id: 14, nome: "Gioielli!", tipo: "Tesori", desc: "You find a small wooden box. It is simple-looking and very old. Within you discover that it is lined with velvet and contains very small jewels worth <b>50 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/1/1d/Treasure_jewel.jpg/revision/latest?cb=20090514125520"},
-            {id: 15, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541"},
-            {id: 16, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541"},
-            {id: 17, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541"},
-            {id: 18, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541"},
-            {id: 19, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541"},
-            {id: 20, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541"},
-            {id: 21, nome: "Trappola!", tipo: "Danni", desc: "While you are searching, a hidden arrow shoots from the wall striking you. You <b>lose 1 Body Point</b> and your turn is over.", img: "https://static.wikia.nocookie.net/heroquest/images/9/91/Hazard_spear.jpg/revision/latest?cb=20090514123733"},
-            {id: 22, nome: "Trappola!", tipo: "Danni", desc: "While you are searching, a hidden arrow shoots from the wall striking you. You <b>lose 1 Body Point</b> and your turn is over.", img: "https://static.wikia.nocookie.net/heroquest/images/9/91/Hazard_spear.jpg/revision/latest?cb=20090514123733"},
-            {id: 23, nome: "Trabocchetto!", tipo: "Danni", desc: "Suddenly, the stone beneath your feet gives way. You fall into a shallow hole, <b>losing 1 Body Point</b> and ending your turn. You may climb out and move normally on your next turn.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c5/Hazard_pit.jpg/revision/latest?cb=20090514123652"},
-            {id: 24, nome: "Trabocchetto!", tipo: "Danni", desc: "Suddenly, the stone beneath your feet gives way. You fall into a shallow hole, <b>losing 1 Body Point</b> and ending your turn. You may climb out and move normally on your next turn.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c5/Hazard_pit.jpg/revision/latest?cb=20090514123652"}
+            {id: 1, nome: "Pozione Risanante", tipo: "Tesori", desc: "In a bundle of rags, you find a small bottle of bluish liquid. You can drink this healing potion at any time, restoring the number of <b>Body Points equal to a roll of one dice</b>. You cannot, however, exceed your starting number of Body Points. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902", suono: "Pozione.mp3"},
+            {id: 2, nome: "Pozione Risanante", tipo: "Tesori", desc: "In a bundle of rags, you find a small bottle of bluish liquid. You can drink this healing potion at any time, restoring the number of <b>Body Points equal to a roll of one dice</b>. You cannot, however, exceed your starting number of Body Points. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902", suono: "Pozione.mp3"},
+            {id: 3, nome: "Pozione Risanante", tipo: "Tesori", desc: "In a bundle of rags, you find a small bottle of bluish liquid. You can drink this healing potion at any time, restoring the number of <b>Body Points equal to a roll of one dice</b>. You cannot, however, exceed your starting number of Body Points. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902", suono: "Pozione.mp3"},
+            {id: 4, nome: "Pozione Eroica", tipo: "Tesori", desc: "You are surprised to find a leather bag hanging on the wall. If you drink its contents before you attack, you can make <b>two attacks instead of one</b>. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/9/92/Potion_heroic.jpg/revision/latest?cb=20090514125219", suono: "Pozione.mp3"},
+            {id: 5, nome: "Pozione Rinforzante", tipo: "Tesori", desc: "You find a small purple flask. You can drink this strange smelling liquid at any time, enabling you to <b>roll two extra combat dice</b> the next time you attack. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/a/a8/Potion_strength.jpg/revision/latest?cb=20090514125250", suono: "Pozione.mp3"},
+            {id: 6, nome: "Pozione di Difesa", tipo: "Tesori", desc: "Amidst a collection of old bottles, you find a small vial containing clear liquid. You can drink this potion at any time, giving you <b>two extra combat dice next time you defend</b>. This may only be used once.", img: "https://static.wikia.nocookie.net/heroquest/images/a/ae/Potion_defense.jpg/revision/latest?cb=20090514123841", suono: "Pozione.mp3"},
+            {id: 7, nome: "Gemme!", tipo: "Tesori", desc: "Tucked into the toe of a old boot you find a small gem worth <b>35 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/8/81/Treasure_gem.jpg/revision/latest?cb=20090514125416", suono: "Monete.mp3"},
+            {id: 8, nome: "Gemme!", tipo: "Tesori", desc: "Tucked into the toe of a old boot you find a small gem worth <b>35 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/8/81/Treasure_gem.jpg/revision/latest?cb=20090514125416", suono: "Monete.mp3"},
+            {id: 9, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
+            {id: 10, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
+            {id: 11, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
+            {id: 12, nome: "Oro!", tipo: "Tesori", desc: "You find a loose stone and tear it from the wall. Behind it you discover a small leather pouch wrapped in an old rag. Peering inside, you find <b>25 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
+            {id: 13, nome: "Gioielli!", tipo: "Tesori", desc: "You find a small wooden box. It is simple-looking and very old. Within you discover that it is lined with velvet and contains very small jewels worth <b>50 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/1/1d/Treasure_jewel.jpg/revision/latest?cb=20090514125520", suono: "Monete.mp3"},
+            {id: 14, nome: "Gioielli!", tipo: "Tesori", desc: "You find a small wooden box. It is simple-looking and very old. Within you discover that it is lined with velvet and contains very small jewels worth <b>50 gold coins</b>. Record the money on your sheet.", img: "https://static.wikia.nocookie.net/heroquest/images/1/1d/Treasure_jewel.jpg/revision/latest?cb=20090514125520", suono: "Monete.mp3"},
+            {id: 15, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
+            {id: 16, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
+            {id: 17, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
+            {id: 18, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
+            {id: 19, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
+            {id: 20, nome: "Mostro Errante", tipo: "Danni", desc: "As you are searching, a monster stalks you and attacks! Place the wandering monster on any square next to you. The monster attacks immediately!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
+            {id: 21, nome: "Trappola!", tipo: "Danni", desc: "While you are searching, a hidden arrow shoots from the wall striking you. You <b>lose 1 Body Point</b> and your turn is over.", img: "https://static.wikia.nocookie.net/heroquest/images/9/91/Hazard_spear.jpg/revision/latest?cb=20090514123733", suono: "Freccia.mp3"},
+            {id: 22, nome: "Trappola!", tipo: "Danni", desc: "While you are searching, a hidden arrow shoots from the wall striking you. You <b>lose 1 Body Point</b> and your turn is over.", img: "https://static.wikia.nocookie.net/heroquest/images/9/91/Hazard_spear.jpg/revision/latest?cb=20090514123733", suono: "Freccia.mp3"},
+            {id: 23, nome: "Trabocchetto!", tipo: "Danni", desc: "Suddenly, the stone beneath your feet gives way. You fall into a shallow hole, <b>losing 1 Body Point</b> and ending your turn. You may climb out and move normally on your next turn.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c5/Hazard_pit.jpg/revision/latest?cb=20090514123652", suono: "Botola.mp3"},
+            {id: 24, nome: "Trabocchetto!", tipo: "Danni", desc: "Suddenly, the stone beneath your feet gives way. You fall into a shallow hole, <b>losing 1 Body Point</b> and ending your turn. You may climb out and move normally on your next turn.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c5/Hazard_pit.jpg/revision/latest?cb=20090514123652", suono: "Botola.mp3"}
         ];
 
         let mazzoAttivo = [];
@@ -253,24 +254,25 @@
             isProcessing = true;
             document.getElementById('scanning-overlay').classList.remove('hidden');
 
-            // 1. SCEGLIAMO SUBITO LA CARTA
             const indice = Math.floor(Math.random() * mazzoAttivo.length);
             const carta = mazzoAttivo[indice];
 
-            // 2. PRE-CARICAMENTO DELL'IMMAGINE (FORZA IL DOWNLOAD ORA)
             const imgPreload = new Image();
             imgPreload.src = carta.img;
 
-            // 3. ASPETTIAMO I 3 SECONDI DI RICERCA
             imgPreload.onload = imgPreload.onerror = function() {
-                // L'immagine è pronta (o il link è rotto, ma procediamo comunque)
                 setTimeout(() => {
-                    // Aggiorniamo i dati mentre l'overlay è ancora attivo
                     document.getElementById('card-name').innerText = carta.nome;
                     document.getElementById('card-image').src = carta.img;
                     document.getElementById('card-desc').innerHTML = carta.desc;
 
-                    // SCAMBIO VISIVO COORDINATO
+                    // GESTIONE AUDIO
+                    const player = document.getElementById('audio-player');
+                    if (carta.suono) {
+                        player.src = carta.suono;
+                        player.play().catch(e => console.log("Audio Error:", e));
+                    }
+
                     document.getElementById('card-front').classList.remove('hidden');
                     document.getElementById('scanning-overlay').classList.add('hidden');
                     document.getElementById('deck-back').classList.add('hidden');
@@ -288,7 +290,6 @@
                 }, 3000);
             };
             
-            // Fail-safe: se l'immagine ci mette troppo a caricare, procedi comunque dopo 3.5 secondi
             setTimeout(() => { if(isProcessing && document.getElementById('card-front').classList.contains('hidden')) imgPreload.onload(); }, 3500);
         }
 
