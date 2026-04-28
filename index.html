@@ -241,6 +241,10 @@
         let isProcessing = false;
 
         function iniziaAvventura() {
+            
+            const player = document.getElementById('audio-player');
+            player.src = "Porta.mp3";
+            player.play().catch(e => console.log("Audio sbloccato"));
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
             const salvataggio = localStorage.getItem('mazzoNFC');
