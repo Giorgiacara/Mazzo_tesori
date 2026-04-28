@@ -89,6 +89,9 @@
             padding: 20px;
             box-sizing: border-box;
             color: #2c3e50;
+            /* Protezione anti-flash */
+            backface-visibility: hidden;
+            -webkit-perspective: 1000;
         }
 
         .card-img {
@@ -129,7 +132,6 @@
             margin-top: 5px;
         }
 
-        /* --- STILE POPUP PERSONALIZZATO --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -139,19 +141,13 @@
         }
 
         .modal-content {
-            background: #f4e7d3; /* Colore pergamena */
+            background: #f4e7d3;
             padding: 30px;
             border-radius: 10px;
             border: 3px solid var(--gold);
             max-width: 85%;
             box-shadow: 0 0 40px rgba(0,0,0,0.8);
             color: #332211;
-        }
-
-        .modal-content h2 { 
-            color: #c0392b; 
-            margin-top: 0; 
-            font-size: 1.8rem;
         }
 
         .modal-buttons {
@@ -167,11 +163,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1.1rem;
-            transition: transform 0.2s;
         }
-
-        .modal-buttons button:active { transform: scale(0.95); }
 
         .btn-annulla { background: #95a5a6; color: white; }
         .btn-conferma { background: #c0392b; color: white; }
@@ -194,7 +186,7 @@
     <div id="start-screen">
         <h1>Nuovi tesori ti aspettano</h1>
         <p style="margin-bottom: 30px; font-size: 1.3rem;">Pronto per l'avventura?</p>
-        <button id="start-btn" onclick="iniziaAvventura()" style="padding:20px 40px; font-size:1.4rem; font-weight:bold; cursor:pointer; background:#e74c3c; color:white; border:none; border-radius:50px; box-shadow: 0 0 20px rgba(231,76,60,0.5);">INIZIA A CERCARE</button>
+        <button id="start-btn" onclick="iniziaAvventura()" style="padding:20px 40px; font-size:1.4rem; font-weight:bold; cursor:pointer; background: #c0392b; color:white; border:none; border-radius:50px;">INIZIA A CERCARE</button>
     </div>
 
     <button id="reset-btn" onclick="confermaReset()">Ripristina Tesori</button>
@@ -231,10 +223,8 @@
         function iniziaAvventura() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
-            
             const salvataggio = localStorage.getItem('mazzoNFC');
             mazzoAttivo = salvataggio ? JSON.parse(salvataggio) : [...DATABASE_INIZIALE];
-            
             startNFC();
         }
 
@@ -244,30 +234,43 @@
             isProcessing = true;
             document.getElementById('scanning-overlay').classList.remove('hidden');
 
-            setTimeout(() => {
-                const indice = Math.floor(Math.random() * mazzoAttivo.length);
-                const carta = mazzoAttivo[indice];
+            // 1. SCEGLIAMO SUBITO LA CARTA
+            const indice = Math.floor(Math.random() * mazzoAttivo.length);
+            const carta = mazzoAttivo[indice];
 
-                document.getElementById('card-name').innerText = carta.nome;
-                document.getElementById('card-image').src = carta.img;
-                document.getElementById('card-desc').innerText = carta.desc;
+            // 2. PRE-CARICAMENTO DELL'IMMAGINE (FORZA IL DOWNLOAD ORA)
+            const imgPreload = new Image();
+            imgPreload.src = carta.img;
 
-                document.getElementById('card-front').classList.remove('hidden');
-                document.getElementById('scanning-overlay').classList.add('hidden');
-                document.getElementById('deck-back').classList.add('hidden');
-
-                if (carta.tipo === "Tesori") {
-                    mazzoAttivo.splice(indice, 1);
-                    localStorage.setItem('mazzoNFC', JSON.stringify(mazzoAttivo));
-                }
-
+            // 3. ASPETTIAMO I 3 SECONDI DI RICERCA
+            imgPreload.onload = imgPreload.onerror = function() {
+                // L'immagine è pronta (o il link è rotto, ma procediamo comunque)
                 setTimeout(() => {
-                    document.getElementById('card-front').classList.add('hidden');
-                    document.getElementById('deck-back').classList.remove('hidden');
-                    isProcessing = false;
-                }, 10000); 
+                    // Aggiorniamo i dati mentre l'overlay è ancora attivo
+                    document.getElementById('card-name').innerText = carta.nome;
+                    document.getElementById('card-image').src = carta.img;
+                    document.getElementById('card-desc').innerText = carta.desc;
 
-            }, 3000);
+                    // SCAMBIO VISIVO COORDINATO
+                    document.getElementById('card-front').classList.remove('hidden');
+                    document.getElementById('scanning-overlay').classList.add('hidden');
+                    document.getElementById('deck-back').classList.add('hidden');
+
+                    if (carta.tipo === "Tesori") {
+                        mazzoAttivo.splice(indice, 1);
+                        localStorage.setItem('mazzoNFC', JSON.stringify(mazzoAttivo));
+                    }
+
+                    setTimeout(() => {
+                        document.getElementById('card-front').classList.add('hidden');
+                        document.getElementById('deck-back').classList.remove('hidden');
+                        isProcessing = false;
+                    }, 10000); 
+                }, 3000);
+            };
+            
+            // Fail-safe: se l'immagine ci mette troppo a caricare, procedi comunque dopo 3.5 secondi
+            setTimeout(() => { if(isProcessing && document.getElementById('card-front').classList.contains('hidden')) imgPreload.onload(); }, 3500);
         }
 
         async function startNFC() {
@@ -275,28 +278,14 @@
                 try {
                     const ndef = new NDEFReader();
                     await ndef.scan();
-                    ndef.onreading = () => {
-                        if (!isProcessing) estrai();
-                    };
-                } catch (error) {
-                    console.log("NFC Error: " + error);
-                }
+                    ndef.onreading = () => { if (!isProcessing) estrai(); };
+                } catch (error) { console.log("NFC Error: " + error); }
             }
         }
 
-        // --- NUOVE FUNZIONI PER IL POPUP ---
-        function confermaReset() {
-            document.getElementById('custom-modal').classList.remove('hidden');
-        }
-
-        function chiudiModal() {
-            document.getElementById('custom-modal').classList.add('hidden');
-        }
-
-        function eseguiReset() {
-            localStorage.removeItem('mazzoNFC');
-            location.reload();
-        }
+        function confermaReset() { document.getElementById('custom-modal').classList.remove('hidden'); }
+        function chiudiModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+        function eseguiReset() { localStorage.removeItem('mazzoNFC'); location.reload(); }
     </script>
 </body>
 </html>
