@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mazzo NFC Interattivo</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #e74c3c;
             --bg: #f4f4f4;
-            <link href="https://fonts.googleapis.com/css2?family=Almendra:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"> /*font scritte*/
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* 2. Applico Almendra a tutto il corpo del sito */
+            font-family: 'Almendra', serif; 
             background-image: url('https://as1.ftcdn.net/v2/jpg/09/73/57/52/1000_F_973575228_DO8x9FCFBaZpL1aXbZe13M7tvDEysStU.jpg');
             background-color: #332211;
             background-size: cover;
@@ -28,13 +31,14 @@
             text-align: center;
         }
 
-        /* Schermo di Avvio */
+        /* Forza il font su tutti gli elementi interattivi */
+        button, p, h1, h2, h3, .status-msg {
+            font-family: 'Almendra', serif;
+        }
+
         #start-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: #1a1a1a;
             z-index: 9999;
             display: flex;
@@ -44,19 +48,25 @@
             color: white;
         }
 
+        #start-screen h1 {
+            color: #f1c40f;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            padding: 0 20px;
+        }
+
         #game-container {
             width: 90vw;
             max-width: 600px;
             margin: 0 auto;
             position: relative;
             perspective: 1000px;
-            display: none; /* Nascosto finché non si preme Start */
+            display: none;
         }
 
         #reset-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             padding: 10px 15px;
             background: var(--primary);
             color: white;
@@ -64,13 +74,13 @@
             border-radius: 5px;
             cursor: pointer;
             z-index: 100;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         .card-display {
             width: 100%;
             min-height: 200px;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: flex;
@@ -79,12 +89,13 @@
             justify-content: center;
             padding: 20px;
             box-sizing: border-box;
+            color: #2c3e50;
         }
 
         .card-img {
             width: 100%;
             height: auto;
-            max-height: 60vh;
+            max-height: 55vh;
             display: block;
             object-fit: contain;
             border-radius: 10px;
@@ -92,7 +103,7 @@
         }
 
         .status-msg {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             color: var(--primary);
             font-weight: bold;
         }
@@ -107,14 +118,25 @@
             border-radius: 15px;
             z-index: 10;
         }
+
+        #card-name {
+            margin: 0 0 5px 0;
+            font-size: 2rem;
+            color: #c0392b;
+        }
+
+        #card-desc {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
-        <h1 style="font-family: 'Georgia', serif; color: #f1c40f; margin-bottom: 10px;">Nuovi tesori ti aspettano</h1>
-        <p style="margin-bottom: 30px; font-size: 1.1rem;">Pronto per l'avventura?</p>
-        <button id="start-btn" onclick="iniziaAvventura()" style="padding:20px 40px; font-size:1.3rem; font-weight:bold; cursor:pointer; background:#e74c3c; color:white; border:none; border-radius:50px; box-shadow: 0 0 20px rgba(231,76,60,0.5);">INIZIA A CERCARE</button>
+        <h1>Nuovi tesori ti aspettano</h1>
+        <p style="margin-bottom: 30px; font-size: 1.3rem;">Pronto per l'avventura?</p>
+        <button id="start-btn" onclick="iniziaAvventura()" style="padding:20px 40px; font-size:1.4rem; font-weight:bold; cursor:pointer; background:#e74c3c; color:white; border:none; border-radius:50px; box-shadow: 0 0 20px rgba(231,76,60,0.5); font-family: 'Almendra', serif;">INIZIA A CERCARE</button>
     </div>
 
     <button id="reset-btn" onclick="confermaReset()">Ripristina Tesori</button>
@@ -122,7 +144,7 @@
     <div id="game-container">
         <div id="deck-back" class="card-display" onclick="estrai()">
             <img src="https://hqtoolkit.altervista.org/images/tesori/HQ21/HQ21_back.png" alt="Retro Mazzo" class="card-img">
-            <p>Avvicinati al forziere per cercare tesori</p>
+            <p style="font-size: 1.2rem;">Avvicinati al forziere per cercare tesori</p>
         </div>
 
         <div id="scanning-overlay" class="hidden">
@@ -130,7 +152,7 @@
         </div>
 
         <div id="card-front" class="card-display hidden">
-            <h2 id="card-name" style="margin:0 0 10px 0;">Nome Carta</h2>
+            <h2 id="card-name">Nome Carta</h2>
             <img id="card-image" src="" alt="Immagine Carta" class="card-img">
             <p id="card-desc">Descrizione della carta estratta.</p>
         </div>
@@ -143,13 +165,11 @@
             {id: 7, nome: "Gemme!", tipo: "Tesori", desc: "Trovi una gemma da 35 monete d'oro.", img: "https://static.wikia.nocookie.net/heroquest/images/8/81/Treasure_gem.jpg/revision/latest?cb=20090514125416"},
             {id: 15, nome: "Mostro Errante", tipo: "Danni", desc: "Un mostro ti attacca immediatamente!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541"},
             {id: 21, nome: "Trappola", tipo: "Danni", desc: "Una freccia ti colpisce: perdi 1 punto corpo.", img: "https://static.wikia.nocookie.net/heroquest/images/9/91/Hazard_spear.jpg/revision/latest?cb=20090514123733"}
-            // Aggiungi qui le altre se vuoi, ho accorciato per brevità
         ];
 
         let mazzoAttivo = [];
         let isProcessing = false;
 
-        // Funzione chiamata dal pulsante Start
         function iniziaAvventura() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
@@ -157,7 +177,7 @@
             const salvataggio = localStorage.getItem('mazzoNFC');
             mazzoAttivo = salvataggio ? JSON.parse(salvataggio) : [...DATABASE_INIZIALE];
             
-            startNFC(); // Attiva il sensore dopo il tocco dell'utente
+            startNFC();
         }
 
         function estrai() {
@@ -187,9 +207,9 @@
                     document.getElementById('card-front').classList.add('hidden');
                     document.getElementById('deck-back').classList.remove('hidden');
                     isProcessing = false;
-                }, 10000); // Tempo visualizzazione carta
+                }, 10000);
 
-            }, 3000); // Tempo ricerca
+            }, 3000);
         }
 
         async function startNFC() {
