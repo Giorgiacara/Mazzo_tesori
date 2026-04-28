@@ -12,11 +12,11 @@
             }
 
         body {
-           <div id="start-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white;">
-                <h1 style="margin-bottom:20px;">Mazzo Magico</h1>
-                <button id="start-btn" style="padding:20px 40px; font-size:1.5rem; cursor:pointer; background:#e74c3c; color:white; border:none; border-radius:10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">ENTRA NELLA GROTTA</button>
-                <p style="margin-top:20px; font-style:italic;">Che l'avventura cominci!</p>
-            </div>
+           <div id="start-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#1a1a1a; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white;">
+    <h1 style="font-family: 'Georgia', serif; color: #f1c40f; margin-bottom: 10px;">Mazzo Magico</h1>
+    <p style="margin-bottom: 30px; font-size: 1.1rem;">Pronto per l'avventura?</p>
+    <button id="start-btn" style="padding:20px 40px; font-size:1.3rem; font-weight:bold; cursor:pointer; background:#e74c3c; color:white; border:none; border-radius:50px; box-shadow: 0 0 20px rgba(231,76,60,0.5);">ENTRA NELLA GROTTA</button>
+</div>
             
             
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -165,20 +165,29 @@
     let isProcessing = false;
 
     function init() {
-        const salvataggio = localStorage.getItem('mazzoNFC');
-        mazzoAttivo = salvataggio ? JSON.parse(salvataggio) : [...DATABASE_INIZIALE];
-        
-        // Gestione del pulsante di inizio
-        document.getElementById('start-btn').addEventListener('click', () => {
-            document.getElementById('start-screen').style.display = 'none'; // Nasconde lo schermo
-            startNFC(); // Attiva l'NFC dopo il tocco
-        });
+    // 1. Carichiamo i dati dal salvataggio
+    const salvataggio = localStorage.getItem('mazzoNFC');
+    mazzoAttivo = salvataggio ? JSON.parse(salvataggio) : [...DATABASE_INIZIALE];
     
-        // Mantieni comunque il click sul mazzo come backup
-        document.getElementById('deck-back').addEventListener('click', () => {
+    // 2. Colleghiamo il pulsante di avvio
+    const btnAvvio = document.getElementById('start-btn');
+    const schermoAvvio = document.getElementById('start-screen');
+
+    btnAvvio.onclick = function() {
+        console.log("Pulsante cliccato, sblocco NFC...");
+        
+        // Nascondiamo lo schermo di avvio
+        schermoAvvio.style.display = 'none';
+
+        // Attiviamo l'NFC (ora il browser lo permetterà perché c'è stato un click)
+        startNFC();
+        
+        // Abilitiamo anche il click manuale sul mazzo come backup
+        document.getElementById('deck-back').onclick = function() {
             estrai();
-        });
-    }
+        };
+    };
+}
 
         // Prova ad avviare l'NFC al primo tocco dello schermo
         document.body.addEventListener('click', () => {
