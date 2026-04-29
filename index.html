@@ -31,14 +31,39 @@
             text-align: center;
         }
 
-        button, p, h1, h2, h3, .status-msg {
-            font-family: 'Almendra', serif;
+        /* Pulsanti di Controllo in alto */
+        #reset-btn {
+            position: absolute;
+            top: 20px; right: 20px;
+            padding: 10px 15px;
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 0.9rem;
+        }
+
+        #back-btn {
+            position: absolute;
+            top: 20px; left: 20px;
+            padding: 10px 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: none; /* Appare solo con la carta */
         }
 
         #start-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); 
+            background: rgba(0, 0, 0, 0.8); 
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -47,69 +72,28 @@
             color: white;
         }
 
-        #start-screen h1 {
-            color: var(--gold);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            padding: 0 20px;
-        }
-
         #game-container {
             width: 90vw;
             max-width: 600px;
-            margin: 0 auto;
             position: relative;
-            perspective: 1000px;
             display: none;
         }
 
-        #reset-btn {
-            position: absolute;
-            top: 20px; right: 20px;
-            padding: 10px 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 100;
-            font-size: 0.9rem;
-        }
-
         .card-display {
-            width: 100%;
-            min-height: 200px;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
             box-sizing: border-box;
             color: #2c3e50;
-            backface-visibility: hidden;
-            -webkit-perspective: 1000;
         }
 
         .card-img {
             width: 100%;
-            height: auto;
-            max-height: 55vh;
-            display: block;
+            max-height: 50vh;
             object-fit: contain;
             border-radius: 10px;
-            margin-bottom: 10px;
         }
-
-        .status-msg {
-            font-size: 1.8rem;
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .hidden { display: none !important; }
 
         #scanning-overlay {
             position: absolute;
@@ -118,34 +102,6 @@
             display: flex; justify-content: center; align-items: center;
             border-radius: 15px;
             z-index: 10;
-        }
-
-        #card-name {
-            margin: 0 0 5px 0;
-            font-size: 2rem;
-            color: #c0392b;
-        }
-
-        #card-desc {
-            font-size: 1.2rem;
-            margin-top: 5px;
-        }
-
-        #back-btn {
-            margin-top: 20px;
-            padding: 10px 25px;
-            background: #c0392b;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: background 0.3s;
-        }
-
-        #back-btn:hover {
-            background: #a93226;
         }
 
         .modal-overlay {
@@ -161,110 +117,75 @@
             padding: 30px;
             border-radius: 10px;
             border: 3px solid var(--gold);
-            max-width: 85%;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            color: #332211;
+            text-align: center;
         }
 
-        .modal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 25px;
-        }
-
-        .modal-buttons button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-annulla { background: #95a5a6; color: white; }
-        .btn-conferma { background: #c0392b; color: white; }
-
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <audio id="audio-player" preload="auto"></audio>
 
-    <div id="custom-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2>Reset del Mazzo</h2>
-            <p>Sei sicuro di voler rimettere tutti i tesori nel forziere e ricominciare?</p>
-            <div class="modal-buttons">
-                <button onclick="chiudiModal()" class="btn-annulla">ANNULLA</button>
-                <button onclick="eseguiReset()" class="btn-conferma">RIPRISTINA</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Schermata Iniziale -->
     <div id="start-screen">
         <h1>Nuovi tesori ti aspettano</h1>
-        <p style="margin-bottom: 30px; font-size: 1.3rem;">Pronto per l'avventura?</p>
-        <button id="start-btn" onclick="iniziaAvventura()" style="padding:20px 40px; font-size:1.4rem; font-weight:bold; cursor:pointer; background: #c0392b; color:white; border:none; border-radius:50px;">INIZIA A CERCARE</button>
+        <button onclick="iniziaAvventura()" style="padding:20px 40px; font-size:1.4rem; cursor:pointer; background: #c0392b; color:white; border:none; border-radius:50px;">INIZIA A CERCARE</button>
     </div>
 
-    <button id="reset-btn" onclick="confermaReset()">Ripristina Tesori</button>
+    <!-- Pulsanti di controllo (Sempre accessibili dopo lo start) -->
+    <button id="reset-btn" class="hidden" onclick="confermaReset()">Ripristina Tesori</button>
+    <button id="back-btn" onclick="tornaAlMazzo()">Ricerca Conclusa</button>
 
+    <!-- Contenitore Gioco -->
     <div id="game-container">
+        
+        <!-- Retro del Mazzo -->
         <div id="deck-back" class="card-display" onclick="estrai()">
             <img src="https://hqtoolkit.altervista.org/images/tesori/HQ21/HQ21_back.png" alt="Retro Mazzo" class="card-img">
             <p style="font-size: 1.2rem;">Avvicinati al forziere per cercare tesori</p>
         </div>
 
+        <!-- Overlay di Scansione -->
         <div id="scanning-overlay" class="hidden">
-            <p class="status-msg">In cerca di tesori...</p>
+            <p style="font-size: 1.8rem; font-weight: bold;">In cerca di tesori...</p>
         </div>
 
+        <!-- Fronte della Carta -->
         <div id="card-front" class="card-display hidden">
             <h2 id="card-name">Nome Carta</h2>
             <img id="card-image" src="" alt="Immagine Carta" class="card-img">
-            <p id="card-desc">Descrizione della carta estratta.</p>
-            <button id="back-btn" onclick="tornaAlMazzo()">Ricerca conclusa</button>
+            <p id="card-desc">Descrizione</p>
+        </div>
+    </div>
+
+    <!-- Modal di Reset -->
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>Reset del Mazzo</h2>
+            <p>Vuoi rimettere tutti i tesori nel forziere?</p>
+            <button onclick="chiudiModal()">ANNULLA</button>
+            <button onclick="eseguiReset()" style="background:#c0392b; color:white;">RIPRISTINA</button>
         </div>
     </div>
 
     <script>
+        // Database (accorciato per brevità, tieni pure il tuo completo)
         const DATABASE_INIZIALE = [
-            {id: 1, nome: "Pozione Risanante", tipo: "Tesori", desc: "Avvolta in un mucchio di stracci, trovate una bottiglietta contenente un liquido bluastro. Potete bere questa pozione risanante in qualsiasi momento, quindi lanciate <b>1 dado rosso per scoprire quanti Punti Corpo recupererete</b>. Ricordate: non potete superare il numero di Punti Corpo di partenza. Potete usarla solo una volta, la carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902", suono: "Pozione.mp3"},
-            {id: 2, nome: "Pozione Risanante", tipo: "Tesori", desc: "Avvolta in un mucchio di stracci, trovate una bottiglietta contenente un liquido bluastro. Potete bere questa pozione risanante in qualsiasi momento, quindi lanciate <b>1 dado rosso per scoprire quanti Punti Corpo recupererete</b>. Ricordate: non potete superare il numero di Punti Corpo di partenza. Potete usarla solo una volta, la carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902", suono: "Pozione.mp3"},
-            {id: 3, nome: "Pozione Risanante", tipo: "Tesori", desc: "Avvolta in un mucchio di stracci, trovate una bottiglietta contenente un liquido bluastro. Potete bere questa pozione risanante in qualsiasi momento, quindi lanciate <b>1 dado rosso per scoprire quanti Punti Corpo recupererete</b>. Ricordate: non potete superare il numero di Punti Corpo di partenza. Potete usarla solo una volta, la carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg/revision/latest?cb=20090514123902", suono: "Pozione.mp3"},
-            {id: 4, nome: "Infuso Eroico", tipo: "Tesori", desc: "Trovate una sacca di pelle che pende da un muro. Se bevete la pozione al suo interno prima di un attacco, potete <b>fare 2 attacchi invece di 1</b>. Potete usarla solo una volta. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/9/92/Potion_heroic.jpg/revision/latest?cb=20090514125219", suono: "Pozione.mp3"},
-            {id: 5, nome: "Pozione Rinforzante", tipo: "Tesori", desc: "Trovate una bottiglia color porpora. Potete bere questo liquido dallo strano odore in qualsiasi momento: vi permetterà di <b>tirare 2 dadi da combattimento in più durante il vostro prossimo attacco</b>. Potete usarla solo una volta, la carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/a/a8/Potion_strength.jpg/revision/latest?cb=20090514125250", suono: "Pozione.mp3"},
-            {id: 6, nome: "Pozione di Difesa", tipo: "Tesori", desc: "In mezzo a un gruppo di vecchie bottiglie, trovate una piccola fiala contenente un liquido trasparente. Potete bere questa pozione in qualsiasi momento: vi darà la possibilità di <b>lanciare 2 dadi da combattimento in più la prossima volta che dovrete difendrvi</b>. Potete usarla solo una volta, la carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/a/ae/Potion_defense.jpg/revision/latest?cb=20090514123841", suono: "Pozione.mp3"},
-            {id: 7, nome: "Gemma!", tipo: "Tesori", desc: "Nascosta nella punta di un vecchio stivale, trovate una piccola gemma dal valore di <b>35 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/8/81/Treasure_gem.jpg/revision/latest?cb=20090514125416", suono: "Monete.mp3"},
-            {id: 8, nome: "Gemma!", tipo: "Tesori", desc: "Nascosta nella punta di un vecchio stivale, trovate una piccola gemma dal valore di <b>35 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/8/81/Treasure_gem.jpg/revision/latest?cb=20090514125416", suono: "Monete.mp3"},
-            {id: 9, nome: "Oro!", tipo: "Tesori", desc: "Tra un mucchio di cianfrusaglie, vecchi cenci e bisunte coperte trovate <b>15 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
-            {id: 10, nome: "Oro!", tipo: "Tesori", desc: "Tra un mucchio di cianfrusaglie, vecchi cenci e bisunte coperte trovate <b>15 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
-            {id: 11, nome: "Oro!", tipo: "Tesori", desc: "Trovate un mattone traballante e lo sfilate dal muro. Dietro di esso, scoprite un piccolo borsellino di cuoio avvolto in un vecchio straccio. Sbirciate all'interno e trovate <b>25 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
-            {id: 12, nome: "Oro!", tipo: "Tesori", desc: "Trovate un mattone traballante e lo sfilate dal muro. Dietro di esso, scoprite un piccolo borsellino di cuoio avvolto in un vecchio straccio. Sbirciate all'interno e trovate <b>25 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/3/30/Treasure_gold.jpg/revision/latest?cb=20090514125457", suono: "Monete.mp3"},
-            {id: 13, nome: "Gioielli!", tipo: "Tesori", desc: "Avete trovato una scatola di legno dall'aspetto semplice e antico. Scoprite che all'interno è foderata di raso e contiene minuscoli gioielli dal valore di <b>50 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/1/1d/Treasure_jewel.jpg/revision/latest?cb=20090514125520", suono: "Monete.mp3"},
-            {id: 14, nome: "Gioielli!", tipo: "Tesori", desc: "Avete trovato una scatola di legno dall'aspetto semplice e antico. Scoprite che all'interno è foderata di raso e contiene minuscoli gioielli dal valore di <b>50 monete d'oro</b>. Riportate la cifra sulla vostra scheda personaggio. La carta va scartata dopo l'uso.", img: "https://static.wikia.nocookie.net/heroquest/images/1/1d/Treasure_jewel.jpg/revision/latest?cb=20090514125520", suono: "Monete.mp3"},
-            {id: 15, nome: "Mostro Errante", tipo: "Danni", desc: "Mentre state cercando qualcosa, un mostro vi sorprende furtivamente e vi attacca! Zargon dovrà mettere il mostro errante in una casella qualsiasi a voi adiacente. Il mostro vi attaccherà subito. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
-            {id: 16, nome: "Mostro Errante", tipo: "Danni", desc: "Mentre state cercando qualcosa, un mostro vi sorprende furtivamente e vi attacca! Zargon dovrà mettere il mostro errante in una casella qualsiasi a voi adiacente. Il mostro vi attaccherà subito. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
-            {id: 17, nome: "Mostro Errante", tipo: "Danni", desc: "Mentre state cercando qualcosa, un mostro vi sorprende furtivamente e vi attacca! Zargon dovrà mettere il mostro errante in una casella qualsiasi a voi adiacente. Il mostro vi attaccherà subito. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
-            {id: 18, nome: "Mostro Errante", tipo: "Danni", desc: "Mentre state cercando qualcosa, un mostro vi sorprende furtivamente e vi attacca! Zargon dovrà mettere il mostro errante in una casella qualsiasi a voi adiacente. Il mostro vi attaccherà subito. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
-            {id: 19, nome: "Mostro Errante", tipo: "Danni", desc: "Mentre state cercando qualcosa, un mostro vi sorprende furtivamente e vi attacca! Zargon dovrà mettere il mostro errante in una casella qualsiasi a voi adiacente. Il mostro vi attaccherà subito. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
-            {id: 20, nome: "Mostro Errante", tipo: "Danni", desc: "Mentre state cercando qualcosa, un mostro vi sorprende furtivamente e vi attacca! Zargon dovrà mettere il mostro errante in una casella qualsiasi a voi adiacente. Il mostro vi attaccherà subito. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg/revision/latest?cb=20090514125541", suono: "Mostro.mp3"},
-            {id: 21, nome: "Trabocchetto!", tipo: "Danni", desc: "State cercando qualcosa quando un dardo nascosto nel muro vi si staglia contro. <b>Perdete 1 Punto Corpo</b> e il vostro turno termina qui. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/9/91/Hazard_spear.jpg/revision/latest?cb=20090514123733", suono: "Freccia.mp3"},
-            {id: 22, nome: "Trabocchetto!", tipo: "Danni", desc: "State cercando qualcosa quando un dardo nascosto nel muro vi si staglia contro. <b>Perdete 1 Punto Corpo</b> e il vostro turno termina qui. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/9/91/Hazard_spear.jpg/revision/latest?cb=20090514123733", suono: "Freccia.mp3"},
-            {id: 23, nome: "Trabocchetto!", tipo: "Danni", desc: "All'improvviso la pietra che avete sotto i piedi comincia a spostarsi. Cascate in una buca profonda, <b>perdendo 1 Punto Corpo</b>. Il vostro turno termina qui, ma al vostro turno successivo potrete venirne fuori e ricominciare a giocare normalmente. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c5/Hazard_pit.jpg/revision/latest?cb=20090514123652", suono: "Botola.mp3"},
-            {id: 24, nome: "Trabocchetto!", tipo: "Danni", desc: "All'improvviso la pietra che avete sotto i piedi comincia a spostarsi. Cascate in una buca profonda, <b>perdendo 1 Punto Corpo</b>. Il vostro turno termina qui, ma al vostro turno successivo potrete venirne fuori e ricominciare a giocare normalmente. Rimettete questa carta in fondo al mazzo.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c5/Hazard_pit.jpg/revision/latest?cb=20090514123652", suono: "Botola.mp3"}
+            {id: 1, nome: "Pozione Risanante", tipo: "Tesori", desc: "Recupera 1 dado rosso di Punti Corpo.", img: "https://static.wikia.nocookie.net/heroquest/images/c/c4/Potion_healing.jpg", suono: "Pozione.mp3"},
+            {id: 15, nome: "Mostro Errante", tipo: "Danni", desc: "Un mostro ti attacca subito!", img: "https://static.wikia.nocookie.net/heroquest/images/e/ec/Wandering_monster.jpg", suono: "Mostro.mp3"}
+            // ... aggiungi qui tutti gli altri ...
         ];
 
         let mazzoAttivo = [];
         let isProcessing = false;
-        let timeoutCarta = null; // Gestisce il timer dei 25 secondi
+        let timeoutCarta = null;
 
         function iniziaAvventura() {
-            // Sblocca l'audio per i browser (fondamentale!)
             document.getElementById('audio-player').play().catch(() => {});
-            
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
+            document.getElementById('reset-btn').classList.remove('hidden');
             
             const salvataggio = localStorage.getItem('mazzoNFC');
             mazzoAttivo = salvataggio ? JSON.parse(salvataggio) : [...DATABASE_INIZIALE];
@@ -272,12 +193,9 @@
         }
 
         function tornaAlMazzo() {
-            // Se il timer sta correndo, lo fermiamo subito
-            if (timeoutCarta) {
-                clearTimeout(timeoutCarta);
-                timeoutCarta = null;
-            }
+            if (timeoutCarta) clearTimeout(timeoutCarta);
             document.getElementById('card-front').classList.add('hidden');
+            document.getElementById('back-btn').style.display = 'none';
             document.getElementById('deck-back').classList.remove('hidden');
             isProcessing = false;
         }
@@ -285,8 +203,6 @@
         function estrai() {
             if (isProcessing || mazzoAttivo.length === 0) return;
             isProcessing = true;
-            
-            // Pulizia di sicurezza nel caso ci fosse un timer vecchio
             if (timeoutCarta) clearTimeout(timeoutCarta);
 
             document.getElementById('scanning-overlay').classList.remove('hidden');
@@ -310,6 +226,7 @@
                     }
 
                     document.getElementById('card-front').classList.remove('hidden');
+                    document.getElementById('back-btn').style.display = 'block';
                     document.getElementById('scanning-overlay').classList.add('hidden');
                     document.getElementById('deck-back').classList.add('hidden');
 
@@ -318,11 +235,8 @@
                         localStorage.setItem('mazzoNFC', JSON.stringify(mazzoAttivo));
                     }
 
-                    // Fai partire il timer da 25 secondi
-                    timeoutCarta = setTimeout(() => {
-                        tornaAlMazzo();
-                    }, 25000); 
-                }, 3000);
+                    timeoutCarta = setTimeout(tornaAlMazzo, 25000); 
+                }, 2000); // Ridotto a 2 secondi per fluidità
             };
         }
 
