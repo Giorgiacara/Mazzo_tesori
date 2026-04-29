@@ -131,6 +131,23 @@
             margin-top: 5px;
         }
 
+        #back-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        #back-btn:hover {
+            background: #a93226;
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -206,6 +223,7 @@
             <h2 id="card-name">Nome Carta</h2>
             <img id="card-image" src="" alt="Immagine Carta" class="card-img">
             <p id="card-desc">Descrizione della carta estratta.</p>
+            <button id="back-btn" onclick="tornaAlMazzo()">TORNA AL MAZZO</button>
         </div>
     </div>
 
@@ -239,19 +257,38 @@
 
         let mazzoAttivo = [];
         let isProcessing = false;
+        let timeoutCarta = null; // Gestisce il timer dei 25 secondi
 
         function iniziaAvventura() {
+            // Sblocca l'audio per i browser (fondamentale!)
+            document.getElementById('audio-player').play().catch(() => {});
+            
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
+            
             const salvataggio = localStorage.getItem('mazzoNFC');
             mazzoAttivo = salvataggio ? JSON.parse(salvataggio) : [...DATABASE_INIZIALE];
             startNFC();
         }
 
+        function tornaAlMazzo() {
+            // Se il timer sta correndo, lo fermiamo subito
+            if (timeoutCarta) {
+                clearTimeout(timeoutCarta);
+                timeoutCarta = null;
+            }
+            document.getElementById('card-front').classList.add('hidden');
+            document.getElementById('deck-back').classList.remove('hidden');
+            isProcessing = false;
+        }
+
         function estrai() {
             if (isProcessing || mazzoAttivo.length === 0) return;
-            
             isProcessing = true;
+            
+            // Pulizia di sicurezza nel caso ci fosse un timer vecchio
+            if (timeoutCarta) clearTimeout(timeoutCarta);
+
             document.getElementById('scanning-overlay').classList.remove('hidden');
 
             const indice = Math.floor(Math.random() * mazzoAttivo.length);
@@ -266,7 +303,6 @@
                     document.getElementById('card-image').src = carta.img;
                     document.getElementById('card-desc').innerHTML = carta.desc;
 
-                    // GESTIONE AUDIO
                     const player = document.getElementById('audio-player');
                     if (carta.suono) {
                         player.src = carta.suono;
@@ -282,15 +318,12 @@
                         localStorage.setItem('mazzoNFC', JSON.stringify(mazzoAttivo));
                     }
 
-                    setTimeout(() => {
-                        document.getElementById('card-front').classList.add('hidden');
-                        document.getElementById('deck-back').classList.remove('hidden');
-                        isProcessing = false;
-                    }, 17000);    /*tempo di lettura carta*/
-                }, 3000);        /*tempo di ricerca*/
+                    // Fai partire il timer da 25 secondi
+                    timeoutCarta = setTimeout(() => {
+                        tornaAlMazzo();
+                    }, 25000); 
+                }, 3000);
             };
-            
-            setTimeout(() => { if(isProcessing && document.getElementById('card-front').classList.contains('hidden')) imgPreload.onload(); }, 3500);
         }
 
         async function startNFC() {
